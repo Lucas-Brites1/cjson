@@ -1,95 +1,107 @@
 # CJSON-Reflect
 
-**CJSON-Reflect** is a lightweight, reflection-based JSON serializer and deserializer for C.
+A lightweight, reflection-based JSON serializer and deserializer for C.
 
-Unlike traditional C JSON libraries that require manual mapping of every field for every operation, **CJSON-Reflect** uses a unified metadata system to automatically map C `structs` to JSON objects and vice-versa, significantly reducing boilerplate code and maintenance effort.
+Unlike traditional C JSON libraries that require manual field mapping for every operation, **CJSON-Reflect** uses a unified metadata system to automatically map C structs to JSON objects — and vice-versa — significantly reducing boilerplate and maintenance effort.
 
-## 🚀 Features
+## Features
 
-- **Reflection-Based:** Define your struct metadata once, use it for both encoding and decoding.
-- **Bi-directional:**
-  - **Encoder:** Struct -> JSON String (supports Compact & Pretty Print).
-  - **Decoder:** JSON String -> Struct (with automatic memory allocation for strings, arrays, and nested objects).
-- **Type Support:** Handles `int`, `string`, `bool`, nested `objects`, and `arrays` (of primitives or objects).
-- **Zero-Dependency:** Core logic depends only on the internal `creflect` module (included).
-- **Customizable:** easy to ignore fields or map C field names (e.g., `user_id`) to different JSON keys (e.g., `id`).
+- **Reflection-Based** — Define struct metadata once, reuse for both encoding and decoding
+- **Bi-directional** — Struct → JSON (compact or pretty-printed) and JSON → Struct
+- **Rich Type Support** — Handles `int`, `string`, `bool`, nested objects, and arrays (primitives or objects)
+- **Zero External Dependencies** — Only relies on the bundled `creflect` module
+- **Flexible Field Mapping** — Rename fields (`user_id` → `id`) or ignore them entirely
 
-## 📦 Installation
+## Installation
 
-This project uses git submodules. To clone it with all dependencies:
+Clone with submodules:
 
 ```bash
-git clone --recursive [https://github.com/YOUR_USERNAME/cjson-reflect.git](https://github.com/YOUR_USERNAME/cjson-reflect.git)
-If you have already cloned it without submodules, run:
+git clone --recursive https://github.com/YOUR_USERNAME/cjson-reflect.git
+```
 
-Bash
+Already cloned without submodules?
 
+```bash
 git submodule update --init --recursive
-🛠️ Usage
-1. Define your Structs and Metadata
-You need to define your C structs and the corresponding reflection metadata.
+```
 
-C
+## Quick Start
 
+### 1. Define Structs and Metadata
+
+```c
 typedef struct {
     char *name;
     int age;
 } User;
 
-// 1. Define field mapping (Reflection)
+// Field reflection metadata
 static t_reflect_field user_fields[] = {
-    {"name", REFLECT_TYPE_STRING, REFLECT_OFFSET(User, name), NULL},
-    {"age", REFLECT_TYPE_INTEGER, REFLECT_OFFSET(User, age), NULL},
+    {"name", REFLECT_TYPE_STRING,  REFLECT_OFFSET(User, name), NULL},
+    {"age",  REFLECT_TYPE_INTEGER, REFLECT_OFFSET(User, age),  NULL},
     NO_MORE_FIELDS
 };
 
-// 2. Define JSON configuration (Renaming or Ignoring fields)
+// Optional: JSON field configuration (renaming/ignoring)
 static t_json_field_config user_json_config[] = {
-    {"name", "full_name", false}, // Maps C "name" -> JSON "full_name"
-    {"age", NULL, false},         // Keeps "age" -> JSON "age"
+    {"name", "full_name", false},  // C "name" → JSON "full_name"
+    {"age",  NULL,        false},  // Keep as "age"
     NO_MORE_FIELDS
 };
-2. Encoding (Struct to JSON)
-C
 
-// Initialize model
-t_json_model *model = cjson_create_model("User", sizeof(User), user_fields, user_json_config);
+// Create the model
+t_json_model *model = cjson_create_model(
+    "User", sizeof(User), user_fields, user_json_config
+);
+```
 
-// Create instance
+### 2. Encoding (Struct → JSON)
+
+```c
 User user = {.name = "Lucas", .age = 25};
 
-// Encode
-char *json = cjson_encode(&user, model, true); // true = Pretty Print
+char *json = cjson_encode(&user, model, true);  // true = pretty print
 printf("%s\n", json);
+// Output:
+// {
+//     "full_name": "Lucas",
+//     "age": 25
+// }
 
 free(json);
-3. Decoding (JSON to Struct)
-C
+```
 
+### 3. Decoding (JSON → Struct)
+
+```c
 const char *json_input = "{\"full_name\": \"Lucas\", \"age\": 25}";
 
-// Prepare empty struct
 User *new_user = calloc(1, sizeof(User));
-
-// Decode
 cjson_decode(json_input, new_user, model);
 
 printf("Name: %s, Age: %d\n", new_user->name, new_user->age);
+// Output: Name: Lucas, Age: 25
 
-// Cleanup
-free(new_user->name); // Strings are auto-allocated
+// Cleanup (strings are heap-allocated during decode)
+free(new_user->name);
 free(new_user);
-📂 Project Structure
-src/: Core implementation (Encoder, Decoder, Utils).
+```
 
-include/: Header files (cjson.h, dynamic_array.h).
+## Project Structure
 
-deps/: Dependencies (creflect submodule).
+```
+cjson-reflect/
+├── src/          # Core implementation (encoder, decoder, utils)
+├── include/      # Public headers (cjson.h, dynamic_array.h)
+├── deps/         # Dependencies (creflect submodule)
+└── examples/     # Ready-to-run examples
+```
 
-examples/: Ready-to-run examples for encoding and decoding.
+## Contributing
 
-🤝 Contributing
-Feel free to submit issues and enhancement requests.
+Issues and pull requests are welcome!
 
-📄 License
-This project is licensed under the MIT License.
+## License
+
+MIT License
