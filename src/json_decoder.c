@@ -59,7 +59,7 @@ t_reflect_field *find_field_by_jsonkey(t_json_model *model, const char *json_key
   if (model == NULL || json_key == NULL)
     return NULL;
 
-  for (int i = 0; i < model->reflect->field_count; i++)
+  for (t_size i = 0; i < model->reflect->field_count; i++)
   {
     t_json_field_config *config = &model->fields_config[i];
     if (config->ignore)

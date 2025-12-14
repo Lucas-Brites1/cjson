@@ -210,7 +210,7 @@ static void _cjson_encode_internal(JsonWriter *w, void *instance, t_json_model *
         writer_append(w, "[");
         char **strings = (char **)arr->data;
 
-        for (int k = 0; k < arr->count; k++)
+        for (t_size k = 0; k < arr->count; k++)
         {
           if (k > 0)
             writer_append(w, ", ");
@@ -238,7 +238,7 @@ static void _cjson_encode_internal(JsonWriter *w, void *instance, t_json_model *
 
         void **items = (void **)arr->data;
 
-        for (int k = 0; k < arr->count; k++)
+        for (t_size k = 0; k < arr->count; k++)
         {
           if (k > 0)
           {

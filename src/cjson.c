@@ -65,8 +65,6 @@ void cjson_free_instance(void *instance, t_json_model *model)
   if (!instance || !model)
     return;
 
-  // printf("[DEBUG] Verificando struct '%s'...\n", model->reflect->name);
-
   t_reflect_field *fields = model->reflect->fields;
   int i = 0;
 
@@ -82,7 +80,6 @@ void cjson_free_instance(void *instance, t_json_model *model)
       char **str_ptr = (char **)field_ptr;
       if (*str_ptr)
       {
-        printf("  [FREE] String '%s' (campo: %s)\n", *str_ptr, field->name); // <--- LOG
         free(*str_ptr);
         *str_ptr = NULL;
       }
@@ -94,14 +91,12 @@ void cjson_free_instance(void *instance, t_json_model *model)
       if (*arr_ptr)
       {
         Array *arr = *arr_ptr;
-        printf("  [FREE] Array de Strings (campo: %s) com %llu itens\n", field->name, arr->count); // <--- LOG
 
         char **strings = (char **)arr->data;
-        for (int k = 0; k < arr->count; k++)
+        for (t_size k = 0; k < arr->count; k++)
         {
           if (strings[k])
           {
-            printf("     -> Item [%d]: %s\n", k, strings[k]); // <--- LOG ITEM
             free(strings[k]);
           }
         }
@@ -116,9 +111,7 @@ void cjson_free_instance(void *instance, t_json_model *model)
       void **child_struct_ptr = (void **)field_ptr;
       if (*child_struct_ptr)
       {
-        // Recursão
         cjson_free_instance(*child_struct_ptr, child_model);
-        printf("  [FREE] Struct Filho (campo: %s)\n", field->name); // <--- LOG
         free(*child_struct_ptr);
         *child_struct_ptr = NULL;
       }
@@ -130,12 +123,14 @@ void cjson_free_instance(void *instance, t_json_model *model)
       Array **arr_ptr = (Array **)field_ptr;
       if (*arr_ptr)
       {
-        printf("  [FREE] Array Primitivo (campo: %s)\n", field->name);
         array_free(*arr_ptr);
         *arr_ptr = NULL;
       }
       break;
     }
+
+    default:
+      break;
     }
     i++;
   }
