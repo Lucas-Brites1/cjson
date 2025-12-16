@@ -116,7 +116,7 @@ t_reflect_object user_meta = {
 };
 ```
 
-### 3. Serialize (Struct -> JSON)
+### 3. Serialize/Encode (Struct -> JSON)
 
 ```c
 User user = {
@@ -127,24 +127,27 @@ User user = {
     .address = { .city = "Campinas", .zip_code = 13000 }
 };
 
-char *json_string = cjson_serialize(&user, &user_meta);
+char *json_string = cjson_encode(&user, &user_meta);
 printf("%s\n", json_string);
 // Output: {"name": "Lucas", "age": 25, ...}
 
 free(json_string);
 ```
 
-### 4. Deserialize (JSON -> Struct)
+### 4. Deserialize/Decoder (JSON -> Struct)
 
 ```c
 char *input = "{\"name\": \"Lucas\", \"age\": 25, \"address\": {\"city\": \"SP\"}}";
-User *new_user = (User*) cjson_deserialize(input, &user_meta);
+User *new_user = (User*) cjson_decode(input, &user_meta);
 
 printf("Name: %s, City: %s\n", new_user->name, new_user->address.city);
 
 // Clean up
 cjson_free(new_user, &user_meta);
 ```
+
+> 💡 **Tip:** Check the programs in [`examples/`](examples/) to see full demonstrations of
+> serialization (`encoder_example`) and deserialization (`decoder_example`) in action.
 
 ---
 
